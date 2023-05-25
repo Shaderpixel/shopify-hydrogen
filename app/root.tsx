@@ -1,4 +1,5 @@
 import {type LinksFunction, type LoaderArgs} from '@shopify/remix-oxygen';
+import {Layout} from 'app/components/Layout';
 import {
   Links,
   Meta,
@@ -8,11 +9,15 @@ import {
   useLoaderData,
 } from '@remix-run/react';
 import type {Shop} from '@shopify/hydrogen/storefront-api-types';
-import styles from './styles/app.css';
+
 import favicon from '../public/favicon.svg';
+
+import styles from './styles/app.css';
+import tailwind from './styles/tailwind-build.css';
 
 export const links: LinksFunction = () => {
   return [
+    {rel: 'stylesheet', href: tailwind},
     {rel: 'stylesheet', href: styles},
     {
       rel: 'preconnect',
@@ -45,9 +50,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <h1>Hello, {name}</h1>
-        <p>This is a custom storefront powered by Hydrogen</p>
-        <Outlet />
+        <Layout title={name}>
+          <Outlet />
+        </Layout>
         <ScrollRestoration />
         <Scripts />
       </body>
