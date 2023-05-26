@@ -1,5 +1,3 @@
-import {type LinksFunction, type LoaderArgs} from '@shopify/remix-oxygen';
-import {Layout} from 'app/components/Layout';
 import {
   Links,
   Meta,
@@ -8,8 +6,10 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from '@remix-run/react';
+import {Seo} from '@shopify/hydrogen';
 import type {Shop} from '@shopify/hydrogen/storefront-api-types';
-
+import {type LinksFunction, type LoaderArgs} from '@shopify/remix-oxygen';
+import {Layout} from 'app/components/Layout';
 import favicon from '../public/favicon.svg';
 
 import styles from './styles/app.css';
@@ -46,6 +46,7 @@ export default function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Seo />
         <Meta />
         <Links />
       </head>
