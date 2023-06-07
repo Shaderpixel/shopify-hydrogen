@@ -1,13 +1,10 @@
 import {useLoaderData} from '@remix-run/react';
 import {json} from '@shopify/remix-oxygen';
+import {BadTypeObject} from 'types';
 import ProductGrid from '~/components/ProductGrid';
 
-export type BadType = {
-  [index: string]: any;
-};
-
 // Get data
-export async function loader({params, context, request}: BadType) {
+export async function loader({params, context, request}: BadTypeObject) {
   //   console.log('params', params);
   //   console.log('request', request);
   const {handle} = params;
@@ -36,7 +33,7 @@ export async function loader({params, context, request}: BadType) {
  *
  * SEO related
  */
-const seo = ({data}: BadType) => ({
+const seo = ({data}: BadTypeObject) => ({
   title: data?.collection?.title,
   description: data?.collection?.description.substr(0, 154),
 });
