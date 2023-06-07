@@ -1,5 +1,5 @@
 import {useLoaderData} from '@remix-run/react';
-import {MediaFile} from '@shopify/hydrogen-react';
+import {MediaFile, Money, ShopPayButton} from '@shopify/hydrogen-react';
 import {json} from '@shopify/remix-oxygen';
 import ProductOptions from 'app/components/ProductOptions';
 import {BadTypeObject, OptionsArray} from 'types';
@@ -18,6 +18,9 @@ export async function loader({params, context, request}: BadTypeObject) {
   const {handle} = params;
   const searchParams = new URL(request.url).searchParams;
   const selectedOptions: OptionsArray = [];
+
+  // get storeDomain to use the Shop Pay Button
+  const storeDomain = context.storefront.getShopifyDomain();
 
   // set selected options from the query string
   searchParams.forEach((value, name) => {
@@ -40,11 +43,14 @@ export async function loader({params, context, request}: BadTypeObject) {
   const selectedVariant =
     product.selectedVariant ?? product?.variants?.nodes[0];
 
-  return json({handle, product, selectedVariant});
+  return json({handle, product, selectedVariant, storeDomain});
 }
 
 export default function ProductHandle() {
-  const {handle, product, selectedVariant} = useLoaderData();
+  const {handle, product, selectedVariant, storeDomain} = useLoaderData();
+
+  // flag of whether the selected variant can be purchased
+  const orderable = selectedVariant?.availableForSale || false;
 
   return (
     <section className="grid w-full gap-4 px-6 md:gap-8 md:px-8 lg:px-12">
@@ -69,6 +75,21 @@ export default function ProductHandle() {
           />
           {/* Delete this after verifying */}
           <p>Selected Variant: {product.selectedVariant?.id}</p>
+          <Money
+            withoutTrailingZeros
+            data={selectedVariant.price}
+            className="mb-2 text-xl font-semibold"
+          />
+          {orderable && (
+            <div className="space-y-2">
+              <ShopPayButton
+                storeDomain={storeDomain}
+                variantIds={[selectedVariant?.id]}
+                width={'400px'}
+              />
+              {/* TODO product form */}
+            </div>
+          )}
           <div
             className="prose text-md border-t border-gray-200 pt-6 text-black"
             dangerouslySetInnerHTML={{__html: product.descriptionHtml}}
