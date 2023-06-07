@@ -3,8 +3,12 @@
  */
 module.exports = {
   extends: [
+    'prettier',
     'plugin:hydrogen/recommended',
     'plugin:hydrogen/typescript',
-    'prettier',
   ],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': ['error'],
+  },
 };
