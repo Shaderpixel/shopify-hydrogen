@@ -1,7 +1,8 @@
-import {Link, useLoaderData} from '@remix-run/react';
+import {Link, useFetchers, useLoaderData} from '@remix-run/react';
 import {json} from '@shopify/remix-oxygen';
 import {CartActions, CartLineItems, CartSummary} from 'app/components/Cart';
 import {CART_QUERY} from 'app/queries/cart';
+import {useMemo} from 'react';
 import {BadTypeObject} from 'types';
 
 export async function loader({context}: BadTypeObject) {
@@ -107,6 +108,29 @@ export async function action({request, context}: BadTypeObject) {
 export default function Cart() {
   const {cart} = useLoaderData();
 
+  // detecting removed item's cost for optimistic UI changes to cart price
+  const fetchers = useFetchers();
+  const removedCost = useMemo(() => {
+    if (fetchers.length > 0) {
+      return fetchers.reduce((acc, fetcher) => {
+        if (
+          fetcher.formAction === '/cart' &&
+          fetcher.formData.get('cartAction') === 'REMOVE_FROM_CART'
+        ) {
+          const foundItem = cart.lines.edges.find((edge: any) => {
+            return (
+              edge.node.id ===
+              JSON.parse((fetcher.formData.get('linesIds') as string) ?? '')[0]
+            );
+          });
+          acc += parseFloat(foundItem.node.cost.totalAmount.amount);
+        }
+        return acc;
+      }, 0);
+    }
+    return 0;
+  }, [cart.lines.edges, fetchers]);
+
   if (cart?.totalQuantity > 0)
     return (
       <div className="mx-auto grid w-full max-w-6xl gap-8 pb-12 md:grid-cols-2 md:items-start md:gap-8 lg:gap-12">
@@ -115,7 +139,7 @@ export default function Cart() {
         </div>
         <div className="fixed bottom-0 left-0 right-0 grid w-full gap-6 rounded-md bg-gray-100 p-4 md:sticky md:top-[65px] md:translate-y-4 md:px-6">
           <div className="fixed bottom-0 left-0 right-0 grid w-full gap-6 rounded-md bg-gray-100 p-4 md:sticky md:top-[65px] md:translate-y-4 md:px-6">
-            <CartSummary cost={cart.cost} />
+            <CartSummary cost={cart.cost} removedCost={removedCost} />
             <CartActions checkoutUrl={cart.checkoutUrl} />
           </div>
         </div>
