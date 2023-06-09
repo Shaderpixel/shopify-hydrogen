@@ -105,15 +105,25 @@ function LineItem({lineItem}: BadTypeObject) {
   );
 }
 
-export function CartSummary({cost}: BadTypeObject) {
+export function CartSummary({cost, removedCost}: BadTypeObject) {
+  //.make a copy of the cost object for optimistic UI price changes otherwise values can become negative
+  const updatedCost = JSON.parse(JSON.stringify(cost));
+
+  updatedCost.subtotalAmount.amount = (
+    parseFloat(updatedCost.subtotalAmount.amount) - removedCost
+  ).toString();
+  updatedCost.totalAmount.amount = (
+    parseFloat(updatedCost.totalAmount.amount) - removedCost
+  ).toString();
+
   return (
     <>
       <dl className="space-y-2">
         <div className="flex items-center justify-between">
           <dt>Subtotal</dt>
           <dd>
-            {cost?.subtotalAmount?.amount ? (
-              <Money data={cost?.subtotalAmount} />
+            {updatedCost?.subtotalAmount?.amount ? (
+              <Money data={updatedCost?.subtotalAmount} />
             ) : (
               '-'
             )}
