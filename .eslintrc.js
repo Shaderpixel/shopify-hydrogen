@@ -2,5 +2,13 @@
  * @type {import("@types/eslint").Linter.BaseConfig}
  */
 module.exports = {
-  extends: ['plugin:hydrogen/recommended', 'plugin:hydrogen/typescript'],
+  extends: [
+    'prettier',
+    'plugin:hydrogen/recommended',
+    'plugin:hydrogen/typescript',
+  ],
+  plugins: ['prettier'],
+  rules: {
+    'prettier/prettier': ['error'],
+  },
 };
